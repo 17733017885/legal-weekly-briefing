@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法律周报 · 2026.07.12</title>
+<style>
+  :root {
+    --bg: #f8f7f5;
+    --header-bg: #1a1a2e;
+    --header-text: rgba(255,255,255,0.92);
+    --card-bg: #ffffff;
+    --text: #2d2d3a;
+    --text-secondary: #5f5f6e;
+    --text-tertiary: #8b8b9a;
+    --accent-legal: #7c5e3e;
+    --accent-ai: #3b6cb4;
+    --score-high-bg: #e8f0e8;
+    --score-high-text: #2d5a27;
+    --score-mid-bg: #f4efe8;
+    --score-mid-text: #8b6914;
+    --tag-bg: #f0f0f5;
+    --tag-text: #58586e;
+    --border: #e8e8ec;
+    --favorite-outline: #c0c0cc;
+    --favorite-active: #d1523f;
+    --divider: #e8e8ec;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .header {
+    background: var(--header-bg);
+    padding: 48px 24px 40px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .header .week-label {
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--header-text);
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+  }
+  .header .date-range {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 400;
+  }
+  .header .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .header .stat { text-align: center; }
+  .header .stat-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    font-variant-numeric: tabular-nums;
+  }
+  .header .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+  .section { margin-bottom: 48px; }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--divider);
+  }
+  .section-head.ai { border-color: var(--accent-ai); }
+  .section-head.legal { border-color: var(--accent-legal); }
+  .section-head .section-num {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .section-head .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .section-head .section-en {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-left: auto;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    transition: border-color 0.15s ease;
+    position: relative;
+  }
+  .card:hover { border-color: #c8c8d4; }
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .score-badge {
+    flex-shrink: 0;
+    min-width: 48px;
+    text-align: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-high { background: var(--score-high-bg); color: var(--score-high-text); }
+  .score-mid  { background: var(--score-mid-bg); color: var(--score-mid-text); }
+  .card-title {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .card-title a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+  }
+  .card-title a:hover { border-color: var(--accent-ai); }
+  .fav-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--favorite-outline);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--favorite-outline);
+    transition: all 0.2s;
+    margin-top: 2px;
+  }
+  .fav-btn:hover { border-color: var(--favorite-active); color: var(--favorite-active); }
+  .fav-btn.active { border-color: var(--favorite-active); background: var(--favorite-active); color: #fff; }
+  .source-line {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .source-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-legal);
+    flex-shrink: 0;
+  }
+  .source-dot.ai { background: var(--accent-ai); }
+  .source-category {
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .source-name { color: var(--text-tertiary); }
+  .tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    letter-spacing: 0.02em;
+  }
+  .abstract {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+  .recommend {
+    background: #f9f8f6;
+    border-left: 3px solid var(--accent-legal);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 12px;
+    border-radius: 0 4px 4px 0;
+  }
+  .recommend.ai { border-color: var(--accent-ai); }
+  .recommend-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent-legal);
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .recommend.ai .recommend-label { color: var(--accent-ai); }
+  .card-link {
+    font-size: 12px;
+    color: var(--accent-ai);
+    text-decoration: none;
+    word-break: break-all;
+    transition: opacity 0.15s;
+  }
+  .card-link:hover { opacity: 0.7; }
+  .card-link .link-icon {
+    display: inline-block;
+    margin-right: 4px;
+  }
+  .footer {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+    text-align: center;
+    border-top: 1px solid var(--divider);
+  }
+  .footer .vol {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+  }
+  .footer .engine-info {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-top: 8px;
+  }
+  .footer .engine-info span { margin: 0 8px; }
+  .footer .disclaimer {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin-top: 12px;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="week-label">Weekly Briefing</div>
+  <h1>法律周报</h1>
+  <div class="date-range">2026.07.12</div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num">10</div><div class="stat-label">精选</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">AI+法律</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">公众号精选</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <div class="section-head ai">
+      <span class="section-num">01</span>
+      <span class="section-title">AI + 法律</span>
+      <span class="section-en">Legal Tech</span>
+    </div>
+        <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-high">9.5</span>
+        <span class="card-title"><a href="https://www.harvey.ai/blog/harvey-accelerates-enterprise-ai-with-agentpowered-platform-and-microsoft-365-copilot" target="_blank">Harvey × Microsoft 365 原生集成，法律 AI 工具进入办公套件</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot ai"></span>
+        <span class="source-category">官方发布</span>
+        <span class="source-name">Harvey Blog</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026.06.16</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">法律科技</span>
+        <span class="tag">微软生态</span>
+        <span class="tag">基础设施</span>
+        <span class="tag">格局级</span>
+      </div>
+      <div class="abstract">
+        Harvey 与微软达成深度合作，法律 AI 能力嵌入 Word/Outlook/Teams 原生工作流，标志着法律科技从「独立工具」进入「办公基础设施」阶段。信号级别：格局级。
+      </div>
+      <div class="recommend ai">
+        <div class="recommend-label">推荐理由</div>
+        迄今为止法律 AI 领域最大规模的平台整合事件。「办公基础设施」定位意味着法律科技不再是律所的边缘工具。对国内律所的信息化决策有直接参照意义。
+      </div>
+      <a class="card-link" href="https://www.harvey.ai/blog/harvey-accelerates-enterprise-ai-with-agentpowered-platform-and-microsoft-365-copilot" target="_blank"><span class="link-icon">&nearr;</span>www.harvey.ai/blog/harvey-accelerates-enterprise-ai-with-agentpowered-pl</a>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-high">8.5</span>
+        <span class="card-title"><a href="https://legaltechnology.com/littler-appoints-stephanie-goutos-as-inaugural-chief-ai-officer" target="_blank">Littler 律所任命首位首席 AI 官，组织架构为 AI 战略让路</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot ai"></span>
+        <span class="source-category">行业动态</span>
+        <span class="source-name">Legal Technology</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">律所管理</span>
+        <span class="tag">AI 战略</span>
+        <span class="tag">应用落地级</span>
+      </div>
+      <div class="abstract">
+        美国顶级律所首次设立 C-suite 级别的 AI 职位，负责全所 AI 战略、工具选型与律师培训。国内律所可参考其组织架构调整思路。
+      </div>
+      <div class="recommend ai">
+        <div class="recommend-label">推荐理由</div>
+        首席 AI 官的设立反映了律所组织架构正在发生结构性变化。国内律所的 AI 推动目前多由管委会或 IT 部门兼管，缺乏专职战略层。
+      </div>
+      <a class="card-link" href="https://legaltechnology.com/littler-appoints-stephanie-goutos-as-inaugural-chief-ai-officer" target="_blank"><span class="link-icon">&nearr;</span>legaltechnology.com/littler-appoints-stephanie-goutos-as-inaugural-chief</a>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-mid">8.0</span>
+        <span class="card-title"><a href="https://justee.ai/blog/ai-contract-review-guide" target="_blank">合同审查 AI 新突破：基于大模型的条款级风险识别</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot ai"></span>
+        <span class="source-category">行业报告</span>
+        <span class="source-name">Justee / Stanford HAI</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">合同审查</span>
+        <span class="tag">AI 工具</span>
+        <span class="tag">应用落地级</span>
+      </div>
+      <div class="abstract">
+        新一代合同审查 AI 不再做「整体风险评估」，而是直接定位到具体条款并给出修改建议，准确率突破 90%。信号级别：应用落地级。
+      </div>
+      <div class="recommend ai">
+        <div class="recommend-label">推荐理由</div>
+        合同审查是国内律师最关注的法律 AI 落地场景。本文提供了 2026 年主流工具的功能对比和五步审查流水线的完整拆解。
+      </div>
+      <a class="card-link" href="https://justee.ai/blog/ai-contract-review-guide" target="_blank"><span class="link-icon">&nearr;</span>justee.ai/blog/ai-contract-review-guide</a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head legal">
+      <span class="section-num">02</span>
+      <span class="section-title">公众号精选</span>
+      <span class="section-en">Court Accounts</span>
+    </div>
+        <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-high">9.0</span>
+        <span class="card-title"><a href="http://mp.weixin.qq.com/s?__biz=MjM5MjkwMDkxMA==&mid=2649581720&idx=1&sn=9dbab238774e7cc02bc8537cec218cc7&chksm=be86fad989f173cf57b0d3311337411a30609385ce802743df9d56f81c4eb600d6037c75c614#rd" target="_blank">全文发布！涉新质生产力企业典型案例</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot"></span>
+        <span class="source-category">法院 · 权威发布</span>
+        <span class="source-name">上海一中院</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026.07</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">典型案例</span>
+        <span class="tag">新质生产力</span>
+        <span class="tag">企业合规</span>
+        <span class="tag">营商环境</span>
+      </div>
+      <div class="abstract">
+        上海一中院发布涉新质生产力企业典型案例全文，涵盖科技创新、数据权益、绿色转型等前沿领域的司法裁判规则，附完整裁判要旨。
+      </div>
+      <div class="recommend">
+        <div class="recommend-label">推荐理由</div>
+        新质生产力是当前政策核心概念。这批案例提供了法院在新经济领域裁判逻辑的重要参照，建议关注其中关于数据权益和绿色转型的裁判要旨。
+      </div>
+      <a class="card-link" href="http://mp.weixin.qq.com/s?__biz=MjM5MjkwMDkxMA==&mid=2649581720&idx=1&sn=9dbab238774e7cc02bc8537cec218cc7&chksm=be86fad989f173cf57b0d3311337411a30609385ce802743df9d56f81c4eb600d6037c75c614#rd" target="_blank"><span class="link-icon">&nearr;</span>mp.weixin.qq.com/s?__biz=MjM5MjkwMDkxMA==&mid=2649581720&idx=1&sn=9dbab23</a>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-high">9.0</span>
+        <span class="card-title"><a href="http://mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451717&idx=1&sn=697022fc928809af13d55f3cfa5c627f&chksm=8bffbfaebc8836b821a8c3348383efb2314b8c8315fc43c2c3a57e563d0e6fc9349b43bfb60f#rd" target="_blank">入库案例：抵押预告登记权利人能否就抵押物享有优先受偿权</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot"></span>
+        <span class="source-category">法院 · 入库案例</span>
+        <span class="source-name">山东高法</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026.07</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">入库案例</span>
+        <span class="tag">抵押预告登记</span>
+        <span class="tag">优先受偿权</span>
+        <span class="tag">开发商保证</span>
+      </div>
+      <div class="abstract">
+        人民法院案例库入库参考案例。围绕抵押预告登记权利人的优先受偿权认定和开发商阶段性保证责任免除问题，附完整裁判要旨。
+      </div>
+      <div class="recommend">
+        <div class="recommend-label">推荐理由</div>
+        抵押预告登记与阶段性保证的交叉问题在商品房预售纠纷中极为常见。该入库案例对开发商和银行两方均有实务价值。
+      </div>
+      <a class="card-link" href="http://mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451717&idx=1&sn=697022fc928809af13d55f3cfa5c627f&chksm=8bffbfaebc8836b821a8c3348383efb2314b8c8315fc43c2c3a57e563d0e6fc9349b43bfb60f#rd" target="_blank"><span class="link-icon">&nearr;</span>mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451717&idx=1&sn=697022f</a>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-high">8.5</span>
+        <span class="card-title"><a href="http://mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451718&idx=1&sn=8d7c1dfb648f9a4169249f37c8638a09&chksm=8bffbfadbc8836bb110fb0e9e6d11f50099a07b4643ed92d839453211b186d7d12fd6097b35e#rd" target="_blank">夫妻借款后离婚，债权人要求一方单独出具借条，是否仍为夫妻共同债务？</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot"></span>
+        <span class="source-category">法院 · 以案说法</span>
+        <span class="source-name">山东高法</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026.07</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">婚姻家事</span>
+        <span class="tag">夫妻债务</span>
+        <span class="tag">民间借贷</span>
+        <span class="tag">离婚</span>
+      </div>
+      <div class="abstract">
+        夫妻双方共同借款后协议离婚，债权人要求一方单独出具借条确认债务。山东高法结合《民法典》第1064条对夫妻共同债务规则进行实务分析。
+      </div>
+      <div class="recommend">
+        <div class="recommend-label">推荐理由</div>
+        离婚后的债务追偿是家事案件与民间借贷交叉领域的高频争议。本文对「离婚协议内部约定能否对抗外部债权人」给出了清晰的分析框架。
+      </div>
+      <a class="card-link" href="http://mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451718&idx=1&sn=8d7c1dfb648f9a4169249f37c8638a09&chksm=8bffbfadbc8836bb110fb0e9e6d11f50099a07b4643ed92d839453211b186d7d12fd6097b35e#rd" target="_blank"><span class="link-icon">&nearr;</span>mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451718&idx=1&sn=8d7c1df</a>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-high">8.5</span>
+        <span class="card-title"><a href="http://mp.weixin.qq.com/s?__biz=MzA4MzY3NjMxNw==&mid=2656555271&idx=1&sn=b1400188c0f5bacf94f7b60371abfb3b&chksm=8451acf5b32625e34de823f24e72f092553ff26e84fa25bd81e2b0c08a5ec43c8d18214a5d24#rd" target="_blank">董监高违反勤勉义务的赔偿责任认定</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot"></span>
+        <span class="source-category">法院 · 品牌栏目</span>
+        <span class="source-name">上海二中院</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026.07</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">公司法</span>
+        <span class="tag">董监高</span>
+        <span class="tag">勤勉义务</span>
+        <span class="tag">赔偿认定</span>
+      </div>
+      <div class="abstract">
+        上海二中院至正栏目案例分析。围绕新《公司法》下董监高勤勉义务的赔偿认定标准，从义务来源、违反判断、损害认定、因果关系四个维度展开。
+      </div>
+      <div class="recommend">
+        <div class="recommend-label">推荐理由</div>
+        新《公司法》对董监高勤勉义务的规定更加具体。本文的「四步审查法」为公司诉讼中的董监高责任认定提供了可复用的分析框架。
+      </div>
+      <a class="card-link" href="http://mp.weixin.qq.com/s?__biz=MzA4MzY3NjMxNw==&mid=2656555271&idx=1&sn=b1400188c0f5bacf94f7b60371abfb3b&chksm=8451acf5b32625e34de823f24e72f092553ff26e84fa25bd81e2b0c08a5ec43c8d18214a5d24#rd" target="_blank"><span class="link-icon">&nearr;</span>mp.weixin.qq.com/s?__biz=MzA4MzY3NjMxNw==&mid=2656555271&idx=1&sn=b140018</a>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-mid">8.0</span>
+        <span class="card-title"><a href="http://mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451717&idx=2&sn=557fc6616940430b373da3fb0d0eb722&chksm=8bffbfaebc8836b89db92822208a8db9ccfe2c55a1b09befa535ab0e4837098e8f774d515b40#rd" target="_blank">超龄劳动者工作中受伤，能否获得工伤赔偿？</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot"></span>
+        <span class="source-category">法院 · 以案说法</span>
+        <span class="source-name">山东高法</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026.07</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">劳动法</span>
+        <span class="tag">工伤认定</span>
+        <span class="tag">超龄劳动者</span>
+        <span class="tag">用工关系</span>
+      </div>
+      <div class="abstract">
+        超龄劳动者与用人单位是劳动关系还是劳务关系？工作中受伤应否适用《工伤保险条例》？山东高法系统梳理了超龄劳动者的工伤认定规则。
+      </div>
+      <div class="recommend">
+        <div class="recommend-label">推荐理由</div>
+        超龄用工是物业、建筑、制造等行业普遍存在的现实问题。本文厘清了实践中常见的「劳动关系/劳务关系」认定误区。
+      </div>
+      <a class="card-link" href="http://mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451717&idx=2&sn=557fc6616940430b373da3fb0d0eb722&chksm=8bffbfaebc8836b89db92822208a8db9ccfe2c55a1b09befa535ab0e4837098e8f774d515b40#rd" target="_blank"><span class="link-icon">&nearr;</span>mp.weixin.qq.com/s?__biz=MzA5MDAxMjk5Ng==&mid=2652451717&idx=2&sn=557fc66</a>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-mid">8.0</span>
+        <span class="card-title"><a href="http://mp.weixin.qq.com/s?__biz=MjM5MjkwMDkxMA==&mid=2649581701&idx=1&sn=b92674592614324c4f6a087ba8306759&chksm=be86fac489f173d2c9c3d6da743c86ce1bdbe03c5e42c25adec2905c76f9e54c25f8e711b08d#rd" target="_blank">老板说「滚」，员工离岗后被指旷工遭解雇</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot"></span>
+        <span class="source-category">法院 · 案例精析</span>
+        <span class="source-name">上海一中院</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026.07</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">劳动法</span>
+        <span class="tag">解除劳动合同</span>
+        <span class="tag">旷工认定</span>
+        <span class="tag">意思表示</span>
+      </div>
+      <div class="abstract">
+        老板口头说出「滚」字后员工离岗，用人单位以旷工为由解雇。口头表达是否构成解除劳动合同的意思表示？上海一中院从意思表示解释角度作出认定。
+      </div>
+      <div class="recommend">
+        <div class="recommend-label">推荐理由</div>
+        口头解雇的效力认定是劳动争议中的经典难题。本文对「用人单位口头表达的定性」和「员工离岗的合理性判断」进行了双重分析。
+      </div>
+      <a class="card-link" href="http://mp.weixin.qq.com/s?__biz=MjM5MjkwMDkxMA==&mid=2649581701&idx=1&sn=b92674592614324c4f6a087ba8306759&chksm=be86fac489f173d2c9c3d6da743c86ce1bdbe03c5e42c25adec2905c76f9e54c25f8e711b08d#rd" target="_blank"><span class="link-icon">&nearr;</span>mp.weixin.qq.com/s?__biz=MjM5MjkwMDkxMA==&mid=2649581701&idx=1&sn=b926745</a>
+    </div>
+    <div class="card">
+      <div class="card-top">
+        <span class="score-badge score-mid">7.5</span>
+        <span class="card-title"><a href="http://mp.weixin.qq.com/s?__biz=MzA4MzY3NjMxNw==&mid=2656555265&idx=1&sn=34f487fd7e48c7d75261a4f304bd83fe&chksm=8451acf3b32625e51f86c195dd96dec936b65a58f37cc808e1158292b818cf2acbe1e718a17a#rd" target="_blank">《建工司法解释（二）》条文解读（上）</a></span>
+        <button class="fav-btn" onclick="toggleFav(this)" title="收藏">&#9733;</button>
+      </div>
+      <div class="source-line">
+        <span class="source-dot"></span>
+        <span class="source-category">法院 · 新法探究</span>
+        <span class="source-name">上海二中院</span>
+        <span style="color:#c0c0cc;">&middot;</span>
+        <span>2026.07</span>
+      </div>
+      <div class="tags-row">
+        <span class="tag">建设工程</span>
+        <span class="tag">司法解释</span>
+        <span class="tag">施工合同</span>
+        <span class="tag">条文解读</span>
+      </div>
+      <div class="abstract">
+        上海二中院对最高法《建工司法解释（二）》逐条解读，涵盖合同效力认定、实际施工人权利保护、工程价款优先受偿等核心条文。
+      </div>
+      <div class="recommend">
+        <div class="recommend-label">推荐理由</div>
+        建工司法解释（二）是今年建工领域最重要的规范性文件。上海二中院的逐条解读既有立法背景又有实务案例对照。
+      </div>
+      <a class="card-link" href="http://mp.weixin.qq.com/s?__biz=MzA4MzY3NjMxNw==&mid=2656555265&idx=1&sn=34f487fd7e48c7d75261a4f304bd83fe&chksm=8451acf3b32625e51f86c195dd96dec936b65a58f37cc808e1158292b818cf2acbe1e718a17a#rd" target="_blank"><span class="link-icon">&nearr;</span>mp.weixin.qq.com/s?__biz=MzA4MzY3NjMxNw==&mid=2656555265&idx=1&sn=34f487f</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="vol">VOL.2026.07.12 &middot; 10 STORIES &middot; WEEKLY BRIEFING</div>
+  <div class="engine-info">
+    legal-weekly-briefing
+    <span>|</span>
+    吴律
+    <span>|</span>
+    k-NN 评分引擎 v2.1
+    <span>|</span>
+    双管道分流（周报 + IMA 知识库）
+  </div>
+  <div class="disclaimer">
+    本报告由 AI 驱动的评分引擎自动生成，仅供参考。具体的法律判断请以现行法律法规和裁判文书为准。
+  </div>
+</div>
+
+<script>
+function toggleFav(btn) {
+  btn.classList.toggle('active');
+}
+</script>
+
+</body>
+</html>
