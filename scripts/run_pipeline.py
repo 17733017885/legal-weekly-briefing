@@ -290,14 +290,11 @@ def run_pipeline(discover_fn, write_report_fn=None, import_fn=None, settings=Non
         def import_fn(items):
             return [import_one(c['url'], c.get('title', '')) for c in items]
 
-    # IMA 导入阈值：仅导入分数 >= 阈值 且 来源为法院/官方公众号的条目
-    threshold = (settings.get('output', {}) or {}).get('ima_import_threshold', 0)
-    court_sources = {'山东高法', '上海一中院', '上海二中院', '最高法', '国务院/部委',
-                     '最高裁判指南', '民商裁判案例库', '最高裁判实务',
-                     '诉讼与执行', '最高判例解读', '最高裁判精读'}
+    # IMA 导入阈值：仅导入分数 >= 阈值的文章（高分文章才沉淀到知识库）
+    # 阈值从 settings.yaml 读取，默认 5；来源限制改为不限（高分即导入）
+    threshold = (settings.get('output', {}) or {}).get('ima_import_threshold', 5)
     importable = [c for c in scored
-                  if c.get('score', 0) >= threshold
-                  and classify_source(c) in court_sources]
+                  if c.get('score', 0) >= threshold]
     results = import_fn(importable)
     queued = sum(1 for r in results if r.get('status') in ('imported', 'queued'))
     report["counts"]["imported"] = queued

@@ -149,8 +149,9 @@ output:
   legal_count: 7
   # 来源多样性：同一来源在周报中最多出现的条数（0=不限制）
   max_per_source: 2
-  # IMA 导入最低分数阈值（>=此分的法院公众号来源条目全量导入 IMA，不受周报条数限制）
-  ima_import_threshold: 8.0
+  # IMA 导入最低分数阈值（>=此分的文章导入 IMA 知识库，不受周报条数限制）
+  # 分数范围 0-10，建议 5-8；越高越严格，导入越少但越精
+  ima_import_threshold: 5.0
 
 pipeline:
   # 失败重试次数
