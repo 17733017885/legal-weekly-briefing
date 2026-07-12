@@ -110,7 +110,9 @@ def import_one(url, title, max_retries=3, backoff=2):
     for attempt in range(max_retries):
         try:
             _enqueue(url, title, knowledge_base_id, category, secondary)
-            save_cache(url)
+            # 注意：此处不再 save_cache —— 缓存（imported_cache.jsonl）只应由
+            # ima_consumer.py 在真正调 IMA API 成功后写入。
+            # 否则 pipeline 写完队列就标"已导入"，consumer 会误判跳过。
             return {"url": url, "status": "queued", "knowledge_base_id": knowledge_base_id, "category": category or "", "error": ""}
         except Exception as e:
             last_err = str(e)
