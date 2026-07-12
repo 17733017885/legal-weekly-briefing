@@ -199,10 +199,11 @@ def default_write_report(candidates, scored):
 
     with open(path, 'w', encoding='utf-8') as f:
         f.write(f"# 法律周报 {date.today().isoformat()}\n\n")
-        f.write("## AI + 法律\n\n")
-        for c in ai_selected:
-            f.write(f"【{c.get('score')}】{c.get('title')}\n{c.get('url', '')}\n\n")
-        f.write("## 纯法律\n\n")
+        if ai_selected:
+            f.write("## AI + 法律\n\n")
+            for c in ai_selected:
+                f.write(f"【{c.get('score')}】{c.get('title')}\n{c.get('url', '')}\n\n")
+        f.write("## 法律实务\n\n")
         for c in legal_selected:
             f.write(f"【{c.get('score')}】{c.get('title')}\n{c.get('url', '')}\n\n")
 

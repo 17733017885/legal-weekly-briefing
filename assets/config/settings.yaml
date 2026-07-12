@@ -144,9 +144,9 @@ output:
   report_template: "周报_{date}.md"
   # 候选池最小数量（自检断言用）
   min_candidates: 10
-  # 交付条数
-  ai_legal_count: 3
-  legal_count: 7
+  # 交付条数（全法律，不关注AI法律科技赛道）
+  ai_legal_count: 0
+  legal_count: 10
   # 来源多样性：同一来源在周报中最多出现的条数（0=不限制）
   max_per_source: 2
   # IMA 导入最低分数阈值（>=此分的文章导入 IMA 知识库，不受周报条数限制）
