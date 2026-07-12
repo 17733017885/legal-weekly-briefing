@@ -74,7 +74,7 @@ Level 2 · + IMA 知识库（需 IMA 账号）
      适用：有 IMA 知识库权限的用户
 
 Level 3 · + MP 自动发现（需 MP 后台权限）
-  └─ Level 2 + wechat-ocr-research skill → MP 后台拉取三账号文章
+  └─ Level 2 + wechat-mp-reader → MP 后台拉取三账号文章
      适用：有微信公众号后台管理权限的用户
 ```
 
@@ -170,7 +170,7 @@ interest_keywords: 婚姻、家事、抚养、继承、离婚、恋爱、公司�
 
 **Agent 收到回答后做什么**：
 
-- **有 MP 权限**：进入「MP 自动发现完整配置指南」（见 Level 3 章节），逐步安装 `wechat-ocr-research` skill、配 Edge 浏览器 cookie、验证 session
+- **有 MP 权限**：进入「MP 自动发现完整配置指南」（见 Level 3 章节），逐步安装 `wechat-mp-reader`、二维码登录、验证 session
 - **没有 MP 权限**：保持 WebSearch 模式。Agent 可建议用户「你也可以每次手动抄一批文章链接到 `candidates.jsonl`，跑 Level 1 评分即可」
 
 ### 适配完成后的输出
@@ -385,13 +385,12 @@ IMA OpenAPI 端点: `POST https://ima.qq.com/openapi/wiki/v1/import_urls`
 ### 前提条件
 - Level 1 已配置（Level 2 不是 Level 3 的前置；可直接从 Level 1 跳 Level 3）
 - 微信公众号后台管理权限（mp.weixin.qq.com）
-- 本机 Microsoft Edge 浏览器
-- 项目内已有 `skills/wechat-ocr-research/`（独立 skill，需单独安装）
+- 项目内已有 `wechat-mp-reader/`（独立 skill，需单独安装；原 `wechat-ocr-research` 已下架，由功能等价的开源项目 `wechat-mp-reader` 顶替）
 
 ### 工作原理
 
 ```
-Edge 登录 MP 后台 → refresh_session_from_edge.py → session.json
+wechat-mp-reader 二维码登录 → session.json
     ↓
 wechat_mp_reader.py → list_articles_via_mp_backend()
     ↓
@@ -410,53 +409,52 @@ wechat_mp_reader.py → list_articles_via_mp_backend()
 
 > 只有你自己运营的公众号或你被授权管理的公众号才能看到后台。关注别人的公众号（比如关注了「山东高法」）不等于有管理权限。如果你没有自己的公众号，跳到本节末尾的「替代方案」。
 
-#### Step 2: 安装 wechat-ocr-research skill
+#### Step 2: 安装 wechat-mp-reader
 
-`wechat-ocr-research` 是本 skill 的外部依赖——它负责和微信 MP 后台通信、管理登录态。本 skill 不重复造轮子。
+`wechat-mp-reader` 是本 skill 的外部依赖——它负责和微信 MP 后台通信、管理登录态。本 skill 不重复造轮子。
 
-**安装方式**（二选一）：
+> 原作者文档里的 `wechat-ocr-research` 已下架，由功能等价的开源项目 `wechat-mp-reader` 顶替。接口契约已验证一致：`resolve_session` / `list_articles_via_mp_backend` / `session login-start` / `login-status` 全部具备。
 
-- **如果从 WorkBuddy/SkillHub 安装**：在对话中说「安装 wechat-ocr-research skill」
-- **如果从 GitHub 获取**：
-  ```bash
-  cd ~/.workbuddy/skills/
-  git clone https://github.com/your-org/wechat-ocr-research.git
-  ```
-
-安装完成后确认目录存在：
-```bash
-ls ~/.workbuddy/skills/wechat-ocr-research/scripts/refresh_session_from_edge.py
-```
-
-#### Step 3: 用 Edge 浏览器登录 MP 后台
-
-**必须是 Microsoft Edge 浏览器**——refresh_session 脚本通过 Edge 的 cookie 数据库读取登录态，不支持 Chrome/Firefox/Safari。
-
-1. 打开 Edge，访问 `https://mp.weixin.qq.com`
-2. 扫描二维码登录
-3. 登录后在 MP 后台随便点几个页面，确认一切正常
-4. **不要关闭 Edge**——Cookie 必须在浏览器活跃状态才能被脚本读取
-
-#### Step 4: 从 Edge 恢复 MP session
+**安装方式**：从 GitHub 克隆到 skill 根目录下（`discover_mmp.py` 会自动探测 `wechat-mp-reader/scripts/`）：
 
 ```bash
-cd ~/.workbuddy/skills/wechat-ocr-research/scripts
-python3 refresh_session_from_edge.py
+cd <skill_dir>   # legal-weekly-briefing 仓库根目录
+git clone --depth 1 https://github.com/nasplycc/wechat-mp-reader.git wechat-mp-reader
 ```
 
-成功输出应包含 `token` 和 `cookie` 字段。如果报错 `Edge cookie database not found`，说明：
-- Edge 浏览器未安装，或
-- Edge 从未登录过 MP 后台
+安装完成后确认入口脚本存在：
+```bash
+ls wechat-mp-reader/scripts/wechat_mp_reader.py
+```
 
-#### Step 5: 验证 session 有效
+> 该目录已加入 `.gitignore`，不会被提交到你的 Fork。沙箱环境每次休眠重置后需重新克隆一次（上面那条命令）。
+
+#### Step 3: 二维码登录 MP 后台
+
+`wechat-mp-reader` 通过**二维码登录**拿 session（不需要 Microsoft Edge，不读浏览器 cookie 数据库）：
+
+```bash
+cd <skill_dir>/wechat-mp-reader/scripts
+python3 wechat_mp_reader.py session login-start
+```
+
+执行后会返回一个二维码 URL，用**你的手机微信扫码**确认登录。扫码后查询登录结果：
+
+```bash
+python3 wechat_mp_reader.py session login-status
+```
+
+成功后 session 落盘到 `wechat-mp-reader/scripts/cache/session.json`，后续免重复扫码（cookie 通常 2–4 小时后失效，过期重跑 `login-start` 即可）。
+
+#### Step 4: 验证 session 有效
 
 ```bash
 python3 wechat_mp_reader.py session check
 ```
 
-期望输出: `valid: true`。如果是 `false`，说明 cookie 已过期——在 Edge 中重新登录 MP 后台后重跑 Step 4。
+期望输出: `valid: true`。如果是 `false`，说明 session 已过期——重跑 Step 3 的 `login-start` 扫码即可。
 
-#### Step 6: 获取目标公众号的 fakeid
+#### Step 5: 获取目标公众号的 fakeid
 
 MP 后台通过 `fakeid` 来标识你关注的公众号（不是你看到的微信号或名称）。获取方式：
 
@@ -482,7 +480,7 @@ mp:
 
 **注意**：fakeid 不包含公众号身份信息，可安全分享。但**不要分享你的 `session.json`**——它包含完整的登录态。
 
-#### Step 7: 配置拉取参数
+#### Step 6: 配置拉取参数
 
 在 `sources.yaml` 中设置每账号拉取篇数：
 
@@ -491,7 +489,7 @@ mp:
   per_account_limit: 30  # 每账号每次最多拉多少篇
 ```
 
-#### Step 8: 首次全链路测试
+#### Step 7: 首次全链路测试
 
 ```bash
 # 从 MP 后台拉取 → 构建候选池 → 评分 → 生成周报
@@ -506,9 +504,9 @@ PYTHONPATH=scripts python3 scripts/run_pipeline.py candidates.jsonl
 
 | 问题 | 原因 | 解决 |
 |------|------|------|
-| Edge cookie database not found | Edge 未安装或未用它登录 MP | 用 Edge（不是 Chrome）登录 mp.weixin.qq.com |
-| session valid: false | Cookie 已过期（通常 2-4 小时后失效） | 在 Edge 重新登录 MP，重跑 refresh_session |
-| 拉不到某公众号的文章 | fakeid 不对或公众号近 30 天未发文 | 用 Step 6 的方式重新获取 fakeid |
+| `wechat-mp-reader/scripts` 找不到 | 未克隆或沙箱休眠重置 | `cd <skill_dir> && git clone --depth 1 https://github.com/nasplycc/wechat-mp-reader.git wechat-mp-reader` |
+| session valid: false | session 已过期（通常 2-4 小时后失效） | 重跑 `python3 wechat_mp_reader.py session login-start` 扫码 |
+| 拉不到某公众号的文章 | fakeid 不对或公众号近 30 天未发文 | 用 Step 5 的方式重新获取 fakeid |
 | 拉到的文章不是近一周的 | MP 后台默认按发布时间倒序，翻页即可 | 检查 per_account_limit 是否够大 |
 | macOS 报「无法验证开发者」 | Python 脚本无签名 | `xattr -d com.apple.quarantine scripts/*.py` |
 
@@ -538,7 +536,7 @@ Level 3 本质上做的是「自动发现候选文章」。如果无法使用 MP
 
 ---
 
-> ⚠️ `wechat-ocr-research` 是独立的 skill，未包含在本 skill 的打包中。用户需单独安装。开源用户若无 MP 权限，使用上述替代方案即可。
+> ⚠️ `wechat-mp-reader` 是独立的 skill，未包含在本 skill 的打包中。用户需单独克隆（原 `wechat-ocr-research` 已下架）。开源用户若无 MP 权限，使用上述替代方案即可。
 
 ---
 
@@ -610,7 +608,7 @@ legal-weekly-briefing/
 
 | 依赖 | 说明 |
 |------|------|
-| `wechat-ocr-research` skill | MP 后台文章拉取 + session 管理 |
+| `wechat-mp-reader` skill | MP 后台文章拉取 + session 管理（原 `wechat-ocr-research` 已下架，由功能等价的开源项目顶替） |
 | IMA OpenAPI 凭证 | `~/.config/ima/client_id` + `api_key` |
 | Microsoft Edge + MP 登录态 | 自动读 cookie 的前提 |
 | pyyaml | Python 包，pip install |
