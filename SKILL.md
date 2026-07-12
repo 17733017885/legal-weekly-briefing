@@ -346,26 +346,32 @@ run_pipeline.py 产出 ima_import_queue.jsonl
 
 ### 导入 IMA
 
-`run_pipeline.py` 自动将 `score ≥ 8.0` 且来源为法院公众号的条目写入 `ima_import_queue.jsonl`。之后消费队列：
+`run_pipeline.py` 自动将 `score ≥ 8.0` 且来源为法院公众号的条目写入 `ima_import_queue.jsonl`，
+每条自带匹配领域的 `knowledge_base_id`。之后由 `scripts/ima_consumer.py` 消费队列：
+按 `knowledge_base_id` 分组 → 批量调 `import_urls` → 文章自动进入对应知识库根目录。
 
-```python
-from ima_importer import classify
-# 按 folder_id 分组 → 批量调用 import_urls
+```bash
+python3 scripts/ima_consumer.py            # 真正导入（按库路由）
+python3 scripts/ima_consumer.py --dry-run  # 只打印分组，不调 API
 ```
 
 IMA OpenAPI 端点: `POST https://ima.qq.com/openapi/wiki/v1/import_urls`
-认证头: `ima-openapi-clientid` + `ima-openapi-apikey`
-参数: `{"knowledge_base_id": "...", "folder_id": "...", "urls": [...]}`
+认证头（易错！）: `ima-openapi-clientid` + `ima-openapi-apikey`
+（注意是 **openapi** 一个词；写成 `ima-open-api-*` 会 401 "clientID or apiKey is empty"）
+参数: `{"knowledge_base_id": "<后端编码ID>", "folder_id": "", "urls": [...]}`
 
-**注意**：根目录导入时**不传 `folder_id` 字段**（传 KB_ID 会报 222000）。
-**限制**：单次最多 ~10 个 URL。
+⚠️ **两套 knowledge_base_id 切勿混用**：
+- 浏览器 URL 里的 `knowledgeBaseId`（纯数字串，如 `7481972595124354`）—— 仅供人工核对是"哪个库"
+- OpenAPI 真正要用的 `knowledge_base_id`（编码串，如 `cOPwXJt4r4...=`）—— 用错会报 **220004 invalid**
+- 正确值用 `get_addable_knowledge_base_list` 实拉，见 `assets/config/taxonomy.yaml` 已校验版本
+
+根目录导入：`folder_id` 传 `""` 或省略字段均可（均已验证）。单次最多 10 个 URL。
 
 ### 初始化步骤
 
-1. 在 IMA 知识库中创建对应文件夹（婚姻家事/公司/合同借贷/建筑工程/劳动法/交通事故/刑事/管辖/房地产物权/侵权）
-2. 从 IMA 后台 URL 获取各文件夹的 `folder_id`，替换 `assets/config/taxonomy.yaml` 中的 `YOUR_FOLDER_ID` 占位符
-3. 将 `knowledge_base_id` 替换为你的知识库 ID
-4. 将 `~/.config/ima/client_id` 和 `~/.config/ima/api_key` 写入本地文件（脚本不读此文件，由外层 IMA 客户端使用）
+1. 在 IMA 建 **12 个独立知识库**（每个领域一个：婚姻家事/公司/合同借贷/建筑工程/交通事故/劳动法/执行/刑事/管辖/房地产物权/侵权/知识产权）。IMA 的"文件夹"是前端视图，后端无 folder_id，所以按"库"而非"文件夹"路由。
+2. 用 `get_addable_knowledge_base_list` 拉取每个库的**后端编码 knowledge_base_id**，填入 `assets/config/taxonomy.yaml` 各分类的 `knowledge_base_id`（同时保留 `kb_url_id` 便于对照网页 URL）。
+3. 将 `client_id`/`api_key` 写入 `/root/.config/ima/`（或设环境变量 `IMA_CLIENT_ID`/`IMA_API_KEY`）—— 脚本直接读取用于调 OpenAPI。
 
 ---
 

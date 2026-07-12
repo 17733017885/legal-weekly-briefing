@@ -2,15 +2,18 @@
 """IMA 知识库导入模块（开源化：幂等 + 失败队列 + 配置驱动 + 队列解耦）
 
 职责：
-- 从 config/taxonomy.yaml 解析领域 → folder_id
+- 从 config/taxonomy.yaml 解析领域 → knowledge_base_id（每个领域一个独立库）
 - 导入前查重（imported_cache.jsonl，url 为键）
-- 分类决策后写入 ima_import_queue.jsonl（待导入队列）
+- 分类决策后写入 ima_import_queue.jsonl（待导入队列，含每条自己的 knowledge_base_id）
 - 失败写入 failed_import.jsonl + 指数退避重试
 - 多领域命中 → 主领域优先，副类记录
 
+路由模型：IMA 文件夹是前端视图，后端无 folder_id；每个领域 = 一个 knowledge_base_id。
+因此每条入队记录携带自身 knowledge_base_id，导入时 omit folder_id（默认进库根目录）。
+
 设计：本模块不直接调用 IMA API。它产出"待导入队列"，由外层客户端消费：
-- WorkBuddy 环境：自动化运行时读取队列 → 调用 ima-skill 的 import_urls MCP 工具
-- 开源用户：可用 IMA OpenAPI / 客户端手动导入队列中的 url+folder_id
+- WorkBuddy 环境：自动化运行时读取队列 → 调用 ima-skill 的 import_urls MCP 工具（按 knowledge_base_id）
+- 开源用户：脚本 scripts/ima_consumer.py 用 IMA OpenAPI 按 knowledge_base_id 批量导入
 这样 Python 模块保持可测试、不耦合 MCP 运行时，且不硬编码凭证。
 """
 import json, time, sys
@@ -36,7 +39,11 @@ def load_taxonomy():
 
 
 def classify(title, tags=None):
-    """返回 (primary_category, folder_id, secondary_categories)。无命中返回 (None, uncategorized_folder_id, [])。"""
+    """返回 (primary_category, knowledge_base_id, secondary_categories)。
+
+    无命中返回 (None, uncategorized_knowledge_base_id, [])。
+    每个领域在 taxonomy.yaml 中对应自己的 knowledge_base_id（IMA 文件夹无后端 ID）。
+    """
     tax = load_taxonomy()
     if not tax:
         return None, "", []
@@ -48,12 +55,12 @@ def classify(title, tags=None):
         if any(k in text for k in kw):
             matched.append(c)
     if not matched:
-        return None, tax.get('uncategorized_folder_id', ''), []
+        return None, tax.get('uncategorized_knowledge_base_id', ''), []
     # 主领域：priority 最高；并列取首个
     matched.sort(key=lambda c: c.get('priority', 0), reverse=True)
     primary = matched[0]
     secondary = [c['name'] for c in matched[1:]]
-    return primary['name'], primary.get('folder_id', ''), secondary
+    return primary['name'], primary.get('knowledge_base_id', ''), secondary
 
 
 def load_cache():
@@ -83,7 +90,7 @@ def save_failed(entry):
 def import_one(url, title, max_retries=3, backoff=2):
     """决定单条是否导入 IMA，并写入待导入队列。
 
-    返回 dict: {url, status, folder_id, category, error}
+    返回 dict: {url, status, knowledge_base_id, category, error}
     status: 'queued'（已写入待导入队列）| 'skipped_duplicate' | 'failed'
 
     设计：本模块不直接调用 IMA API。它负责"分类决策 + 幂等查重 + 队列写出"，
@@ -92,42 +99,39 @@ def import_one(url, title, max_retries=3, backoff=2):
     """
     cache = load_cache()
     if url in cache:
-        return {"url": url, "status": "skipped_duplicate", "folder_id": "", "category": "", "error": ""}
+        return {"url": url, "status": "skipped_duplicate", "knowledge_base_id": "", "category": "", "error": ""}
 
-    category, folder_id, secondary = classify(title)
-    if not folder_id:
-        # 无 folder_id（未配置兜底）-> 标失败待人工
-        entry = {"url": url, "title": title, "error": "no_folder_id", "ts": time.time()}
-        save_failed(entry)
-        return {"url": url, "status": "failed", "folder_id": "", "category": category or "", "error": "no_folder_id"}
+    category, knowledge_base_id, secondary = classify(title)
+    # knowledge_base_id 即该领域对应的独立 IMA 知识库
+    # 导入进库根目录（omit folder_id，IMA 后端无 folder_id 概念）
 
     # 重试：队列写出可能因 IO 失败，退避重试
     last_err = ""
     for attempt in range(max_retries):
         try:
-            _enqueue(url, title, folder_id, category, secondary)
+            _enqueue(url, title, knowledge_base_id, category, secondary)
             save_cache(url)
-            return {"url": url, "status": "queued", "folder_id": folder_id, "category": category or "", "error": ""}
+            return {"url": url, "status": "queued", "knowledge_base_id": knowledge_base_id, "category": category or "", "error": ""}
         except Exception as e:
             last_err = str(e)
             time.sleep(backoff ** attempt)
 
-    entry = {"url": url, "title": title, "folder_id": folder_id, "error": last_err, "ts": time.time()}
+    entry = {"url": url, "title": title, "knowledge_base_id": knowledge_base_id, "error": last_err, "ts": time.time()}
     save_failed(entry)
-    return {"url": url, "status": "failed", "folder_id": folder_id, "category": category or "", "error": last_err}
+    return {"url": url, "status": "failed", "knowledge_base_id": knowledge_base_id, "category": category or "", "error": last_err}
 
 
-def _enqueue(url, title, folder_id, category, secondary):
+def _enqueue(url, title, knowledge_base_id, category, secondary):
     """将待导入条目追加到队列文件，供外层 IMA 客户端消费。
 
-    队列格式（JSONL）：{url, title, folder_id, category, secondary, ts}
-    外层消费后调用 import_urls(knowledge_base_id, folder_id, [url])。
+    队列格式（JSONL）：{url, title, knowledge_base_id, category, secondary, ts}
+    外层消费后调用 import_urls(knowledge_base_id, omit_folder_id, [url])。
     """
     queue = BASE / "ima_import_queue.jsonl"
     record = {
         "url": url,
         "title": title,
-        "folder_id": folder_id,
+        "knowledge_base_id": knowledge_base_id,
         "category": category,
         "secondary": secondary,
         "ts": time.time(),

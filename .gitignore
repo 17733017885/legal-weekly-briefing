@@ -4,3 +4,9 @@ __pycache__/
 周报_*.md
 run-report.json
 ima_import_queue.jsonl
+candidates.jsonl
+demo_data_*.json
+周报_demo_*.html
+imported_cache.jsonl
+failed_import.jsonl
+.workbuddy/

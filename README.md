@@ -32,7 +32,7 @@ python3 scripts/demo.py
 | 产物 | 说明 | 示例 |
 |------|------|------|
 | 周报 MD / HTML | 10 条精选（AI+法律 3 + 纯法律 7），按分数降序，带领域标签 | 【9.5】Harvey × Microsoft 365 原生集成 |
-| `ima_import_queue.jsonl` | 待入库队列（url + folder_id + 分类），由 IMA 客户端消费 | `{"url":"...","folder_id":"...","category":"公司"}` |
+| `ima_import_queue.jsonl` | 待入库队列（url + 各自 knowledge_base_id + 分类），由 `ima_consumer.py` 按库消费 | `{"url":"...","knowledge_base_id":"cwVRz...=","category":"公司"}` |
 | `run-report.json` | 执行报告（候选数、导入数、自检结果） | `{"self_check":{"ok":true}}` |
 
 ## 快速开始

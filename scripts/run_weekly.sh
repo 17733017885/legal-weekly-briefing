@@ -23,4 +23,11 @@ python3 scripts/discover_mmp.py "$@"
 echo "▶ Step2: 评分引擎 + 生成周报"
 python3 scripts/run_pipeline.py candidates.jsonl
 
+echo "▶ Step3: 将队列文章按知识库自动导入 IMA（Level 2，按 knowledge_base_id 分库路由）"
+if [ -n "$IMA_CLIENT_ID" ] || [ -f /root/.config/ima/client_id ]; then
+  python3 scripts/ima_consumer.py || echo "⚠️ IMA 自动入库失败，详见上方错误；队列已保留，下次可重试"
+else
+  echo "⏭️ 未检测到 IMA 凭证，跳过自动入库（队列保留在 ima_import_queue.jsonl，可手动消费）"
+fi
+
 echo "✅ 完成。周报：$(ls -t 周报_*.md 2>/dev/null | head -1 || echo '(见上方输出)')"
