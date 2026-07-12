@@ -66,7 +66,7 @@ def load_cache():
 
 
 def save_cache(url):
-    with CACHE.open("a") as f:
+    with CACHE.open("a", encoding="utf-8") as f:
         f.write(url + "\n")
 
 
@@ -181,12 +181,12 @@ def consume(dry_run=False):
 
     if not dry_run:
         # 重写队列：只保留仍需重试的条目
-        with QUEUE.open("w") as f:
+        with QUEUE.open("w", encoding="utf-8") as f:
             for r in fail_kept:
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
         # 超限条目移入 failed_import.jsonl
         if fail_final:
-            with FAILED.open("a") as f:
+            with FAILED.open("a", encoding="utf-8") as f:
                 for r in fail_final:
                     f.write(json.dumps({**r, "ts": time.time()}, ensure_ascii=False) + "\n")
         print(f"# 完成：成功导入 {ok_total} 条；待重试 {len(fail_kept)} 条；永久失败 {len(fail_final)} 条。")

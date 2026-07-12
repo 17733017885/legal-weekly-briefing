@@ -34,7 +34,7 @@ FAILED = BASE / "failed_import.jsonl"
 def load_taxonomy():
     if yaml is None or not TAXONOMY.exists():
         return None
-    with open(TAXONOMY) as f:
+    with open(TAXONOMY, encoding='utf-8') as f:
         return yaml.safe_load(f) or {}
 
 
@@ -66,24 +66,24 @@ def classify(title, tags=None):
 def load_cache():
     if not CACHE.exists():
         return set()
-    with open(CACHE) as f:
+    with open(CACHE, encoding='utf-8') as f:
         return set(line.strip() for line in f if line.strip())
 
 
 def save_cache(url):
-    with open(CACHE, 'a') as f:
+    with open(CACHE, 'a', encoding='utf-8') as f:
         f.write(url + '\n')
 
 
 def load_failed():
     if not FAILED.exists():
         return []
-    with open(FAILED) as f:
+    with open(FAILED, encoding='utf-8') as f:
         return [json.loads(line) for line in f if line.strip()]
 
 
 def save_failed(entry):
-    with open(FAILED, 'a') as f:
+    with open(FAILED, 'a', encoding='utf-8') as f:
         f.write(json.dumps(entry, ensure_ascii=False) + '\n')
 
 
@@ -138,7 +138,7 @@ def _enqueue(url, title, knowledge_base_id, category, secondary):
         "secondary": secondary,
         "ts": time.time(),
     }
-    with open(queue, 'a') as f:
+    with open(queue, 'a', encoding='utf-8') as f:
         f.write(json.dumps(record, ensure_ascii=False) + '\n')
 
 

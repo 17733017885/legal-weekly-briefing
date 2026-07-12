@@ -79,7 +79,7 @@ def coalesce_vectors(data):
 def load_settings():
     if yaml is None or not CONFIG.exists():
         return {}
-    cfg = yaml.safe_load(open(CONFIG)) or {}
+    cfg = yaml.safe_load(open(CONFIG, encoding='utf-8')) or {}
     # 版本化 merge：旧 config（无 schema_version）自动补全缺失字段，不全量覆盖
     if 'schema_version' not in cfg.get('scoring', {}):
         sc = cfg.setdefault('scoring', {})
@@ -112,7 +112,7 @@ def load_training(path):
     if not path.exists():
         return []
     data = []
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith('#'):

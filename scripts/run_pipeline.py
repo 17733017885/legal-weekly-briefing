@@ -47,7 +47,7 @@ class FatalError(PipelineError):
 def load_settings():
     if yaml is None or not SETTINGS.exists():
         return {}
-    with open(SETTINGS) as f:
+    with open(SETTINGS, encoding='utf-8') as f:
         return yaml.safe_load(f) or {}
 
 
@@ -57,7 +57,7 @@ def log_stage(report, stage, **kw):
     # 结构化日志落盘
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     logfile = RUNS_DIR / f"{date.today().isoformat()}.jsonl"
-    with open(logfile, 'a') as f:
+    with open(logfile, 'a', encoding='utf-8') as f:
         f.write(json.dumps(entry, ensure_ascii=False) + '\n')
     return entry
 
@@ -184,7 +184,7 @@ def default_write_report(candidates, scored):
     ai_selected, ai_remaining = select_diverse(scored, 'ai-legal', ai_count, max_per_source)
     legal_selected, legal_remaining = select_diverse(scored, 'legal', legal_count, max_per_source)
 
-    with open(path, 'w') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         f.write(f"# 法律周报 {date.today().isoformat()}\n\n")
         f.write("## AI + 法律\n\n")
         for c in ai_selected:
@@ -293,7 +293,7 @@ def run_pipeline(discover_fn, write_report_fn=None, import_fn=None, settings=Non
     report["self_check"] = {"ok": ok, "failures": failures}
 
     # 写 run-report.json
-    with open(BASE / "run-report.json", 'w') as f:
+    with open(BASE / "run-report.json", 'w', encoding='utf-8') as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
 
     exit_code = 0 if ok else 1
@@ -305,12 +305,12 @@ def load_candidates(path):
     p = Path(path)
     items = []
     if p.suffix == '.jsonl':
-        for line in open(p):
+        for line in open(p, encoding='utf-8'):
             line = line.strip()
             if line:
                 items.append(json.loads(line))
     else:
-        data = json.loads(open(p).read())
+        data = json.loads(open(p, encoding='utf-8').read())
         items = data if isinstance(data, list) else data.get('candidates', [])
     return items
 
