@@ -54,7 +54,7 @@ def _cfg(name):
 
 def _read(p):
     try:
-        return p.read_text().strip()
+        return p.read_text(encoding="utf-8").strip()
     except Exception:
         return ""
 
@@ -62,7 +62,7 @@ def _read(p):
 def load_cache():
     if not CACHE.exists():
         return set()
-    return set(line.strip() for line in CACHE.read_text().splitlines() if line.strip())
+    return set(line.strip() for line in CACHE.read_text(encoding="utf-8").splitlines() if line.strip())
 
 
 def save_cache(url):
@@ -74,7 +74,7 @@ def load_queue():
     if not QUEUE.exists():
         return []
     out = []
-    for line in QUEUE.read_text().splitlines():
+    for line in QUEUE.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line:
             continue

@@ -24,7 +24,7 @@ def main():
     if not TEST_PATH.exists():
         print(f"✗ 测试样例缺失: {TEST_PATH}", file=sys.stderr)
         sys.exit(1)
-    cases = json.loads(TEST_PATH.read_text())["cases"]
+    cases = json.loads(TEST_PATH.read_text(encoding="utf-8"))["cases"]
 
     passed = 0
     failed = 0
