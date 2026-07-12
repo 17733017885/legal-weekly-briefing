@@ -1,0 +1,60 @@
+# WorkBuddy Automation 调度配置（本机调度 / 方式 A）
+#
+# 作用：每周三、周五 09:00（北京时间）全自动跑法律周报：
+#   公众号拉文 → 自动特征标注 → kNN 评分 → 生成周报 → 入库 IMA
+#
+# 本文件是"配置一次、每周自动推送"的备份与重注册说明。
+# 真实任务已由 WorkBuddy 自动化调度系统接管（见下方 registered 段）。
+
+registered:
+  # 通过 automation-task-manager 实际注册成功的任务（status=1 已启用）
+  id: 2596590
+  task_key: "task-20260712130815-beeef5"
+  name: "法律周报自动生成（周三/周五 9:00）"
+  status: 1
+  frequency_type: "daily"
+  next_run_at: "2026-07-15T09:00:00+08:00"   # 下周三 9:00
+  owner_type: "personal"
+  agent_type: "sandbox_agent"
+
+# ---- 调度表达式 ----
+# WorkBuddy 自动化内部使用 6 位 cron：秒 分 时 日 月 周（秒固定 0）
+cron_6field: "0 0 9 * * 3,5"        # 周三=3, 周五=5, 每周这两天 09:00:00
+# SKILL.md「方式 A」文档化简写（用于产品 UI 粘贴）
+schedule: "FREQ=WEEKLY;BYDAY=WE,FR;BYHOUR=9;BYMINUTE=0"
+timezone: "Asia/Shanghai"
+
+# ---- 触发时执行的 prompt ----
+prompt: |
+  使用 legal-weekly-briefing 技能生成本周法律周报，全程自动：
+  1. cd 到 legal-weekly-briefing 仓库根目录（本机 clone 的目录，如 ~/legal-weekly-briefing 或 /workspace/lwf-repo）。
+  2. 执行：bash scripts/run_weekly.sh （默认模式：从法院公众号拉取近一周文章 → 自动特征标注 → kNN 评分排序 → 生成周报 周报_YYYY-MM-DD.md → 全量入库 IMA 知识库）。
+  3. 若 run_weekly.sh 报 MP 未登录/会话失效，停止并提示用户在本机执行一次二维码登录：
+     python3 <reader>/wechat_mp_reader.py session login-start，然后用微信扫码，确认 login-status 为已登录后再重试本任务。
+  4. 完成后用一句话向用户汇总：本周入选文章数量、周报文件路径、IMA 入库数量。
+
+# ---- ⚠️ 前置一次性操作（仅需在本机做一次）----
+# 自动化跑的是「真实 MP 拉取」，依赖本机已登录的公众号会话。
+# 首次启用前，必须在本机完成一次二维码登录：
+prerequisites:
+  - "wechat-mp-reader 已就位：<skill_dir>/skills/wechat-mp-reader/scripts"
+  - "本机执行：python3 <reader>/wechat_mp_reader.py session login-start"
+  - "微信扫码，再执行：python3 <reader>/wechat_mp_reader.py session login-status 确认已登录"
+  - "会话落盘到 cache/session.json 后免重复；失效时自动化会按 prompt 第 3 步提示重新登录"
+
+# ---- 重注册 / 迁移命令 ----
+# 若任务丢失或换机，用 automation-task-manager 重新创建（endpoint 由环境自动解析）：
+recreate_command: |
+  ./scheduler-api.sh create \
+    --name "法律周报自动生成（周三/周五 9:00）" \
+    --description "legal-weekly-briefing 全自动：每周三、周五 09:00 从法院公众号拉文→评分→出周报→入库 IMA" \
+    --cron "0 0 9 * * 3,5" \
+    --prompt "$(cat assets/config/automation.yaml | ... 见上方 prompt 段)" \
+    --frequency-type "daily" \
+    --timeout 600 \
+    --retry-count 3
+
+# 暂停 / 恢复 / 删除：
+#   ./scheduler-api.sh update --id 2596590 --status 0   # 暂停
+#   ./scheduler-api.sh update --id 2596590 --status 1   # 恢复
+#   ./scheduler-api.sh delete --id 2596590              # 删除
