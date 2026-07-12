@@ -12,19 +12,19 @@ mp:
       fakeid: "MjM5MjkwMDkxMA=="
     - name: "上海二中院"
       fakeid: "MzA4MzY3NjMxNw=="
-    # —— Q2 用户新增公众号（fakeid 待 Q4 确定开 Level 3 后补）——
+    # —— 用户新增公众号（fakeid 已通过 wechat-mp-reader search 收集）——
     - name: "最高裁判指南"
-      fakeid: ""
+      fakeid: "Mzg2MDU1ODY3NA=="
     - name: "民商裁判案例库"
-      fakeid: ""
+      fakeid: "Mzk5MDI0ODQwNA=="
     - name: "最高裁判实务"
-      fakeid: ""
+      fakeid: "MzI1MzEyMTM4Mg=="
     - name: "诉讼与执行"
-      fakeid: ""
+      fakeid: "MzA3Njk2MDIzNA=="
     - name: "最高判例解读"
-      fakeid: ""
+      fakeid: "MzIzNjQ0MjgwOA=="
     - name: "最高裁判精读"
-      fakeid: ""
+      fakeid: "MzIyODQzMDExMQ=="
   # session 获取：原文档依赖的 wechat-ocr-research 已下架，
   # 改由功能等价的开源项目 wechat-mp-reader 顶替（二维码登录）。
   # 一次性：python3 <reader>/wechat_mp_reader.py session login-start
