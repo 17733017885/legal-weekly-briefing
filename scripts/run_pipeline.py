@@ -311,6 +311,20 @@ def run_pipeline(discover_fn, write_report_fn=None, import_fn=None, settings=Non
     with open(BASE / "run-report.json", 'w', encoding='utf-8') as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
 
+    # Stage 6: 微信推送通知（Server酱）
+    try:
+        from notify_wechat import notify_report
+        push_result = notify_report(
+            report_path=report.get("report_path"),
+            candidates_count=report["counts"].get("candidates", 0),
+            imported_count=report["counts"].get("imported", 0),
+            errors=report.get("errors", []),
+            html_path=report.get("html_path"),
+        )
+        log_stage(report, "notify", ok=push_result.get("ok"), msg=push_result.get("msg"))
+    except Exception as e:
+        log_stage(report, "notify", ok=False, error=str(e))
+
     exit_code = 0 if ok else 1
     return exit_code, report
 

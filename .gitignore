@@ -11,5 +11,8 @@ imported_cache.jsonl
 failed_import.jsonl
 .workbuddy/
 
+# Server酱 SendKey（敏感信息，不进仓库）
+assets/config/.serverchan_key
+
 # Level 3 依赖：wechat-mp-reader（替代已下架的 wechat-ocr-research，单独 clone，不进仓库）
 /wechat-mp-reader/
