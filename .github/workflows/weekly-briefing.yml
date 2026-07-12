@@ -45,16 +45,16 @@ jobs:
             python3 scripts/demo.py
           fi
 
-      - name: 提交生成的周报
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          # 自动暂存本次生成的所有报告产物（用 -A 而非中文通配符，
-          # 避免 CI 的 C locale 下中文文件名 glob 匹配失败导致提交被跳过）
-          git add -A 2>/dev/null || true
-          if git diff --cached --quiet; then
-            echo "本次无新周报产物，跳过提交"
-          else
-            git commit -m "chore: 自动生成法律周报 $(date +%Y-%m-%d)"
-            git push
-          fi
+      - name: 上传周报为 Artifact（可下载，避免污染 git 历史）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-briefing-report
+          path: |
+            周报_demo_*.md
+            周报_demo_*.html
+            demo_data_*.json
+            run-report.json
+            ima_import_queue.jsonl
+          if-no-files-found: ignore
+          retention-days: 30
