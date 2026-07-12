@@ -49,8 +49,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # 仅提交本次生成的报告类产物，避免覆盖配置
-          git add -A "周报_*.md" "周报_demo_*.md" "run-report.json" "ima_import_queue.jsonl" 2>/dev/null || true
+          # 自动暂存本次生成的所有报告产物（用 -A 而非中文通配符，
+          # 避免 CI 的 C locale 下中文文件名 glob 匹配失败导致提交被跳过）
+          git add -A 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "本次无新周报产物，跳过提交"
           else
