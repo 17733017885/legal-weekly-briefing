@@ -1,0 +1,59 @@
+name: 法律周报自动生成 (Legal Weekly Briefing)
+
+on:
+  schedule:
+    - cron: '0 1 * * 3'   # 每周三 北京时间 9:00 (UTC 01:00)
+    - cron: '0 1 * * 5'   # 每周五 北京时间 9:00 (UTC 01:00)
+  workflow_dispatch:        # 允许在 Actions 页面手动触发
+
+# 避免同一次手动/调度触发的重叠运行
+concurrency:
+  group: legal-weekly-briefing
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # 用于将生成的周报提交回仓库
+
+jobs:
+  weekly-briefing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: pip install pyyaml
+
+      - name: 评分引擎自检 (verify.py)
+        run: PYTHONPATH=scripts python3 scripts/verify.py
+
+      - name: 生成法律周报
+        id: briefing
+        run: |
+          # 若仓库中维护了 candidates.jsonl（手动或外部发现），跑完整流水线；
+          # 否则回退到 Level 0 demo，保证每次调度都有产出。
+          if [ -f candidates.jsonl ]; then
+            echo "检测到 candidates.jsonl，运行完整评分流水线"
+            PYTHONPATH=scripts python3 scripts/run_pipeline.py candidates.jsonl
+          else
+            echo "未检测到 candidates.jsonl，运行 demo 演示"
+            python3 scripts/demo.py
+          fi
+
+      - name: 提交生成的周报
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 仅提交本次生成的报告类产物，避免覆盖配置
+          git add -A "周报_*.md" "周报_demo_*.md" "run-report.json" "ima_import_queue.jsonl" 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "本次无新周报产物，跳过提交"
+          else
+            git commit -m "chore: 自动生成法律周报 $(date +%Y-%m-%d)"
+            git push
+          fi
