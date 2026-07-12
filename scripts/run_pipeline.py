@@ -111,6 +111,19 @@ def classify_source(candidate):
         return '全国人大'
     if '国务院' in src or '人社部' in src or 'gov.cn' in url:
         return '国务院/部委'
+    # 用户新增法律实务公众号
+    if '最高裁判指南' in src:
+        return '最高裁判指南'
+    if '民商裁判案例库' in src:
+        return '民商裁判案例库'
+    if '最高裁判实务' in src:
+        return '最高裁判实务'
+    if '诉讼与执行' in src:
+        return '诉讼与执行'
+    if '最高判例解读' in src:
+        return '最高判例解读'
+    if '最高裁判精读' in src:
+        return '最高裁判精读'
     # 国际法律科技源
     if 'Artificial Lawyer' in src:
         return 'Artificial Lawyer'
@@ -279,7 +292,9 @@ def run_pipeline(discover_fn, write_report_fn=None, import_fn=None, settings=Non
 
     # IMA 导入阈值：仅导入分数 >= 阈值 且 来源为法院/官方公众号的条目
     threshold = (settings.get('output', {}) or {}).get('ima_import_threshold', 0)
-    court_sources = {'山东高法', '上海一中院', '上海二中院', '最高法', '国务院/部委'}
+    court_sources = {'山东高法', '上海一中院', '上海二中院', '最高法', '国务院/部委',
+                     '最高裁判指南', '民商裁判案例库', '最高裁判实务',
+                     '诉讼与执行', '最高判例解读', '最高裁判精读'}
     importable = [c for c in scored
                   if c.get('score', 0) >= threshold
                   and classify_source(c) in court_sources]
