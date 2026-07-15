@@ -168,7 +168,18 @@ def discover_via_reader(wmr, accounts, per_account_limit):
               "  请先在该机器上跑一次二维码登录：\n"
               "  python3 <reader>/wechat_mp_reader.py session login-start\n"
               "  python3 <reader>/wechat_mp_reader.py session login-status", file=sys.stderr)
+        _notify_session_expired("MP session 缺失（cookie/token 为空），请重新登录")
         return []
+    # 检查 session 是否有效
+    try:
+        status = wmr.check_session(session_cfg)
+        if not status.get("valid"):
+            reason = status.get("reason", "未知原因")
+            print(f"[warn] MP session 已失效: {reason}", file=sys.stderr)
+            _notify_session_expired(f"MP session 已失效（{reason}），请重新登录")
+            return []
+    except Exception as e:
+        print(f"[warn] session 检查失败: {e}", file=sys.stderr)
     items = []
     for acct in accounts:
         try:
@@ -185,7 +196,27 @@ def discover_via_reader(wmr, accounts, per_account_limit):
             print(f"[ok] {acct['name']}: 拉到 {len(listed)} 篇")
         except Exception as e:
             print(f"[warn] {acct['name']} 拉取失败: {e}", file=sys.stderr)
+    # 如果全部账号都拉到 0 篇，可能是 session 过期
+    if not items:
+        _notify_session_expired("MP 拉取到 0 篇文章，session 可能已过期，请重新登录")
     return items
+
+
+def _notify_session_expired(reason):
+    """session 过期时通过 Server酱 推送微信提醒。"""
+    try:
+        from pathlib import Path as _P
+        import sys as _sys
+        _scripts = _P(__file__).resolve().parent
+        if str(_scripts) not in _sys.path:
+            _sys.path.insert(0, str(_scripts))
+        from notify_wechat import send
+        send(
+            title="⚠️ MP Session 过期提醒",
+            desp=f"## 微信公众平台 Session 过期\n\n**原因**：{reason}\n\n**更新步骤**：\n\n1. 浏览器打开 mp.weixin.qq.com 扫码登录\n2. F12 → Network → 复制 Cookie\n3. 地址栏复制 token 数字\n4. 运行更新命令（详见项目文档）\n\n---\n*此消息由法律周报系统自动推送*",
+        )
+    except Exception:
+        pass  # 推送失败不影响主流程
 
 
 def mock_items(accounts):
