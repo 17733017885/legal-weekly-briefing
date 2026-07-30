@@ -25,6 +25,9 @@ mp:
       fakeid: "MzIzNjQ0MjgwOA=="
     - name: "最高裁判精读"
       fakeid: "MzIyODQzMDExMQ=="
+    # —— 律所号（用户新增）——
+    - name: "上海宽毅律所"
+      fakeid: "MzkzNDk5MzY1OQ=="
   # session 获取：原文档依赖的 wechat-ocr-research 已下架，
   # 改由功能等价的开源项目 wechat-mp-reader 顶替（二维码登录）。
   # 一次性：python3 <reader>/wechat_mp_reader.py session login-start
@@ -54,6 +57,7 @@ websearch:
     - "诉讼与执行"
     - "最高判例解读"
     - "最高裁判精读"
+    - "上海宽毅律所"
   # 英文 AI+法律源（国际动态）
   en_keywords:
     - "AI law legal tech latest"

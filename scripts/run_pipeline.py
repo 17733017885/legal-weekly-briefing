@@ -124,6 +124,8 @@ def classify_source(candidate):
         return '最高判例解读'
     if '最高裁判精读' in src:
         return '最高裁判精读'
+    if '宽毅律所' in src or '宽毅' in src:
+        return '上海宽毅律所'
     # 国际法律科技源
     if 'Artificial Lawyer' in src:
         return 'Artificial Lawyer'
